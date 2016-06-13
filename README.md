@@ -26,7 +26,7 @@ Build the mail configure
     rxMailBuilder.setSubject("subject");
     rxMailBuilder.setUsername("your@gmail.com");
     rxMailBuilder.setPassword("password");
-    rxMailBuilder.setHost("stmp.gmail.com");
+    rxMailBuilder.setHost("smtp.gmail.com");
     rxMailBuilder.setPort("465");
     rxMailBuilder.setMailTo("another@gmail.com");
     rxMailBuilder.addAttachments("/data/files/email.jpg");
