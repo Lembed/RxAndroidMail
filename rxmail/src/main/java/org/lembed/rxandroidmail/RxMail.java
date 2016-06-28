@@ -33,24 +33,16 @@ public abstract class RxMail {
     public abstract void  push (@NonNull RxMailBuilder rxMailBuilder);
 
     /**
+     * release all resource
+     */
+    public abstract void release();
+
+
+    /**
      * Gets the status observable.
      *
      * @return     The status observable.
      */
-    public abstract Observable<String> getStatusObservable();
-
-    /**
-     * release the resource used by RxMail
-     */
-    public abstract void  finish ();
-
-    /**
-     * check the rxMailBuilder elements
-     *
-     * @param      rxMailBuilder  The receive mail builder
-     *
-     * @return     return true if the parameters is ok
-     */
-    public abstract boolean validate(RxMailBuilder rxMailBuilder);
+    public abstract Observable<Boolean> getStatus();
 
 }

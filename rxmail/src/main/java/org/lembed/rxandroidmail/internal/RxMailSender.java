@@ -1,6 +1,8 @@
 package org.lembed.rxandroidmail.internal;
 
 import java.security.Security;
+import java.util.ArrayList;
+
 import java.util.Properties;
 
 import javax.activation.DataHandler;
@@ -20,19 +22,16 @@ import javax.mail.internet.MimeMultipart;
 public class RxMailSender extends javax.mail.Authenticator {
     private Session session;
     private Multipart _multipart;
-    private RxMailBuilder rxMailBuilder;
+    private final RxMailBuilder rxMailBuilder;
 
     static {
         Security.addProvider(new JSSEProvider());
     }
 
-    public RxMailSender(RxMailBuilder builder) {
-        this.rxMailBuilder = builder;
+    public RxMailSender(RxMailBuilder rxMailBuilder) {
+        this.rxMailBuilder = rxMailBuilder;
         _multipart = new MimeMultipart("related");
 
-    }
-
-    public RxMailSender build() {
         Properties props = new Properties();
         props.setProperty("mail.transport.protocol", "smtp");
         props.setProperty("mail.host", rxMailBuilder.getHost());
@@ -45,18 +44,29 @@ public class RxMailSender extends javax.mail.Authenticator {
         props.setProperty("mail.smtp.auth", "true");
 
         session = Session.getDefaultInstance(props, this);
-        return this;
+
+        ArrayList<String> lists = rxMailBuilder.getAttachments();
+
+        if (!lists.isEmpty()) {
+            for (int i = 0; i < lists.size(); i++) {
+                if (!lists.get(i).isEmpty()) {
+                    try {
+                        addAttachment(lists.get(i));
+                    } catch ( Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        }
+
     }
 
-    public void setRxMailBuilder(RxMailBuilder rxMailBuilder) {
-        this.rxMailBuilder = rxMailBuilder;
-    }
-
+    @Override
     protected PasswordAuthentication getPasswordAuthentication() {
         return new PasswordAuthentication(rxMailBuilder.getUsername(), rxMailBuilder.getPassword());
     }
 
-    public synchronized void sendMail() throws Exception {
+    public synchronized void send() throws Exception {
         MimeMessage message = new MimeMessage(session);
         DataHandler handler = new DataHandler(new ByteArrayDataSource(rxMailBuilder.getBody().getBytes(), rxMailBuilder.getType()));
         message.setFrom(new InternetAddress(rxMailBuilder.getUsername()));
@@ -78,7 +88,7 @@ public class RxMailSender extends javax.mail.Authenticator {
     }
 
 
-    public void addAttachment(String filename) throws Exception {
+    private void addAttachment(String filename) throws Exception {
         BodyPart messageBodyPart = new MimeBodyPart();
         DataSource source = new FileDataSource(filename);
         messageBodyPart.setDataHandler(new DataHandler(source));
