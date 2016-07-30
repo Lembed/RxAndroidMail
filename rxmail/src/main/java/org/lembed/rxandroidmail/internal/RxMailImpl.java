@@ -86,6 +86,13 @@ public class RxMailImpl extends RxMail {
             return false;
         }
 
+        for (String attachment : rxMailBuilder.getAttachments()) {
+            File attachmentFile = new File(attachment);
+            if (!attachmentFile.exists()) {
+                return false;
+            }
+        }
+
         if (!Utils.isNetworkAvailable(rxMailBuilder.getContext())) {
             return false;
         }
